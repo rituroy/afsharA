@@ -2,7 +2,6 @@ dirSrc="/Users/royr/UCSF/"
 dirSrc2=dirSrc
 setwd(paste(dirSrc2,"AfsharA",sep=""))
 
-
 ##############################################
 outFormat="pdf"
 outFormat="png"
@@ -34,9 +33,13 @@ if (F) {
     clin$tnm4=substr(clin$TNM,1,2)
 }
 ##############################################
-
 clin=read.table("docs/Book1 UM 122272017_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
 clin$Chrom6pgain[which(clin$CCGL.Pt.Number=="UMPA-9")]=1
+
+clin1=read.table("docs/Book1 UM 01142018_AA.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+names(clin1)[match(c("Metastasis","Onset.of.metastatic.disease.from.diagnosis.in.months"),names(clin1))]=c("met","timeToMet")
+clin=cbind(clin,clin1[,c("met","timeToMet")])
+rm(clin1)
 
 #clin$id=paste("X",clin$Patient.Number,sep="")
 clin$id=paste("X",1:nrow(clin),sep="")
@@ -54,10 +57,13 @@ clin$path3=clin$Pathology; clin$path3[!clin$Pathology%in%c("1","2","3")]=NA
 clin$Chrom6pgainBi=clin$Chrom6pgain; clin$Chrom6pgainBi[!clin$Chrom6pgain%in%(0:1)]=NA
 clin$GEP3=clin$GEP; clin$GEP3[!clin$GEP%in%c("1","2","3")]=NA
 clin$tnm4=substr(clin$TNM,1,2)
+clin$chr3Loss_chr8qGain_BAP1mut=as.integer(clin$Chrom3lossBi & clin$Chrom8qgain & clin$BAP1.loss)
+j=which(clin$met==0)
+clin$timeToMet[j]=clin$follow.up.months[j]
 
-varInfo=data.frame(varList=c("Agem","Race","Sex","tnm4","path3","Largestbasaldiam","Thickness","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Monosomy.3","Partial.monosomy.3","monosomy3Type","Chrom3loss","Chrom3lossBi","Chrom6pgainBi","Chrom6qloss","Chrom8ploss","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","GEP3","GEP2"),
-varName=c("Age","Race","Sex","TNM","Pathology","LargestBasalDiameter","Thickness","CiliaryBodyInvolvement","EOE","EpithelioidCell","Chrom1pLoss","Monosomy3","PartialMonosomy3","Chrom3Loss","Chrom3loss","Chrom3Loss","Chrom6pGain","Chrom6qLoss","Chrom8pLoss","Chrom8qGain","GNAQ","GNA11","BAP1Loss","BAP1Rearrange","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","GEP","GEP"),
-varNameLong=c("Age","Race","Sex","TNM stage","Pathology","Largest basal tumor diameter","Tumor thickness","Ciliary body involvement","Extraocular extension","Epithelioid cells","Chrom 1p loss","Monosomy 3","Partial monosomy 3","Chrom 3 loss","Chrom 3 loss","Chrom 3 loss","Chrom 6p gain","Chrom 6q loss","Chrom 8p loss","Chrom 8q gain","GNAQ mutation","GNA11 mutation","BAP1 mutation","BAP1 rearrangement","EIF1Ax mutation","SF3B1 mutation","GNAQ_GNA11 mutation","BAP1_EIF1Ax_SF3B1 mutation","GEP","GEP"),stringsAsFactors=F)
+varInfo=data.frame(varList=c("met","Agem","Race","Sex","tnm4","path3","Largestbasaldiam","Thickness","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Monosomy.3","Partial.monosomy.3","monosomy3Type","Chrom3loss","Chrom3lossBi","Chrom6pgainBi","Chrom6qloss","Chrom8ploss","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","GEP3","GEP2"),
+varName=c("Metastasis","Age","Race","Sex","TNM","Pathology","LargestBasalDiameter","Thickness","CiliaryBodyInvolvement","EOE","EpithelioidCell","Chrom1pLoss","Monosomy3","PartialMonosomy3","Chrom3Loss","Chrom3loss","Chrom3Loss","Chrom6pGain","Chrom6qLoss","Chrom8pLoss","Chrom8qGain","GNAQ","GNA11","BAP1Loss","BAP1Rearrange","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","GEP","GEP"),
+varNameLong=c("Metastasis","Age","Race","Sex","TNM stage","Pathology","Largest basal tumor diameter","Tumor thickness","Ciliary body involvement","Extraocular extension","Epithelioid cells","Chrom 1p loss","Monosomy 3","Partial monosomy 3","Chrom 3 loss","Chrom 3 loss","Chrom 3 loss","Chrom 6p gain","Chrom 6q loss","Chrom 8p loss","Chrom 8q gain","GNAQ mutation","GNA11 mutation","BAP1 mutation","BAP1 rearrangement","EIF1Ax mutation","SF3B1 mutation","GNAQ_GNA11 mutation","BAP1_EIF1Ax_SF3B1 mutation","chrom 3 loss + chrom 8q gain + BAP1 mutation","GEP","GEP"),stringsAsFactors=F)
 catInfo=data.frame(catList=c("0","1"),catNameShort=c("noMut","mut"),catNameLong=c("no mutation","mutation"),stringsAsFactors=F)
 
 fName1="_um"
@@ -148,51 +154,194 @@ res1
 res2
 median(y[x==1])-median(y[x==0])
 
-
-
 ## --------------
 
 fName=paste("contingencyTbl",fName1,".txt",sep="")
 
-varList1=c("tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Chrom6pgainBi","Chrom8qgain","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","GEP3")
-varList1=c("tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Chrom6pgainBi","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GEP3")
+varList2=c("Chrom3lossBi","chr3Loss_chr8qGain_BAP1mut")
+
+colIdExcl="met"
+
+write.table("",file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=F)
+for (vId2 in 1:length(varList2)) {
+    switch(varList2[vId2],
+    "Chrom3lossBi"={
+        varList1=c("tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Chrom6pgainBi","Chrom8qgain","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","GEP3")
+        varList1=c("met","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Chrom6pgainBi","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GEP3")
+    },
+    "chr3Loss_chr8qGain_BAP1mut"={
+        varList1=c("met")
+    }
+    )
+    nVar=length(varList1[which(!varList1%in%colIdExcl)])
+    if (length(nVar!=0)) {
+        tmp=rep(NA,nVar)
+        tmpC=rep("",nVar)
+        tbl=data.frame(variable1=tmpC,variable2=tmpC,testType=tmpC,pv=tmp,ld=tmp,or=tmp,lcb=tmp,ucb=tmp,stringsAsFactors=F)
+        k=1
+    }
+    for (vId1 in 1:length(varList1)) {
+        x=table(clin[,varList1[vId1]],clin[,varList2[vId2]],dnn=varInfo$varName[match(c(varList1[vId1],varList2[vId2]),varInfo$varList)])
+        write.table(paste(c("",varInfo$varName[match(varList2[vId2],varInfo$varList)]),collapse="\t"),file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
+        write.table(paste(c(varInfo$varName[match(varList1[vId1],varInfo$varList)],colnames(x)),collapse="\t"),file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
+        write.table(x,file=fName, sep="\t", col.names=F, row.names=T, quote=F,append=T)
+        write.table("",file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
+        if (!varList1[vId1]%in%colIdExcl) {
+            res=fisher.test(x)
+            tbl$variable1[k]=varInfo$varName[match(varList1[vId1],varInfo$varList)]
+            tbl$variable2[k]=varInfo$varName[match(varList2[vId2],varInfo$varList)]
+            tbl$testType[k]="Fisher test"
+            tbl$pv[k]=res$p.value
+            if (nrow(x)==2) {
+                tbl$or[k]=res$estimate
+                tbl$lcb[k]=res$conf.int[1]
+                tbl$ucb[k]=res$conf.int[2]
+            }
+            k=k+1
+        }
+    }
+    if (length(nVar!=0)) {
+        statTbl=rbind(statTbl,tbl)
+    }
+}
+
+## --------------
+if (F) {
+    ## Asymptotic Cochran-Armitage test (Cochran, 1954, p. 436)
+    ## Note: 'Change' as ordinal
+    cochran <- matrix(
+    c(11,  7,
+    27, 15,
+    42, 16,
+    53, 13,
+    11,  1),
+    byrow = TRUE, ncol = 2,
+    dimnames = list(
+    "Change" = c("Marked", "Moderate", "Slight",
+    "Stationary", "Worse"),
+    "Infiltration" = c("0-7", "8-15")
+    )
+    )
+    cochran <- matrix(
+    c(11,  20,
+      27, 15,
+      42, 16,
+      53, 13,
+      11,  1),
+    byrow = TRUE, ncol = 2,
+    dimnames = list(
+    "Change" = c("Marked", "Moderate", "Slight",
+    "Stationary", "Worse"),
+    "Infiltration" = c("0-7", "8-15")
+    )
+    )
+    cochran <- as.table(cochran)
+
+
+    (ct <- chisq_test(cochran,scores = list("Change" = c(3, 2, 1, 0, -1))))
+    statistic(ct)^2 # X^2 = 6.66
+
+    boxplot(as.integer(as.factor(clin$tnm4))~as.factor(clin$Chrom3lossBi))
+}
+
+varList1=c("tnm4")
 varList2=c("Chrom3lossBi")
 n=length(varList1)*length(varList2)
 tmp=rep(NA,n)
 tmpC=rep("",n)
 tbl=data.frame(variable1=tmpC,variable2=tmpC,testType=tmpC,pv=tmp,ld=tmp,or=tmp,lcb=tmp,ucb=tmp,stringsAsFactors=F)
 k=1
-write.table("",file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=F)
 for (vId1 in 1:length(varList1)) {
     for (vId2 in 1:length(varList2)) {
-        #x=table(clin[,varList1[vId1]],clin[,varList2[vId2]])
-        x=table(clin[,varList1[vId1]],clin[,varList2[vId2]],dnn=varInfo$varName[match(c(varList1[vId1],varList2[vId2]),varInfo$varList)])
-        res=fisher.test(x)
+        #x=table(clin[,varList1[vId1]],clin[,varList2[vId2]],dnn=varInfo$varName[match(c(varList1[vId1],varList2[vId2]),varInfo$varList)])
+        x=table(clin[,varList1[vId1]],clin[,varList2[vId2]],dnn=c("x1","x2"))
+        res=chisq_test(x,scores=list("x1"=as.integer(as.factor(unique(clin[,varList1[vId1]])))),distribution="asymptotic")
+        statistic(res)^2 # X^2
         tbl$variable1[k]=varInfo$varName[match(varList1[vId1],varInfo$varList)]
         tbl$variable2[k]=varInfo$varName[match(varList2[vId2],varInfo$varList)]
-        tbl$testType[k]="Fisher test"
-        tbl$pv[k]=res$p.value
-        if (nrow(x)==2) {
-            tbl$or[k]=res$estimate
-            tbl$lcb[k]=res$conf.int[1]
-            tbl$ucb[k]=res$conf.int[2]
-        }
-        write.table(paste(c("",varInfo$varName[match(varList2[vId2],varInfo$varList)]),collapse="\t"),file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
-        write.table(paste(c(varInfo$varName[match(varList1[vId1],varInfo$varList)],colnames(x)),collapse="\t"),file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
-        write.table(x,file=fName, sep="\t", col.names=F, row.names=T, quote=F,append=T)
-        write.table("",file=fName, sep="\t", col.names=F, row.names=F, quote=F,append=T)
+        tbl$testType[k]="Cochran-Armitage test"
+        tbl$pv[k]=pvalue(res)
         k=k+1
     }
 }
 statTbl=rbind(statTbl,tbl)
+
+## --------------
+## Survival analysis
+
+library(survival)
+
+plotFlag=""
+plotFlag="_onePlot"
+
+colList=c("green","red")
+
+varList1=c("met")
+varList2=c("Chrom3lossBi","chr3Loss_chr8qGain_BAP1mut")
+vId1=1; vId2=1
+n=length(varList1)*length(varList2)
+tmp=rep(NA,n)
+tmpC=rep("",n)
+tbl=data.frame(variable1=tmpC,variable2=tmpC,testType=tmpC,pv=tmp,ld=tmp,or=tmp,lcb=tmp,ucb=tmp,stringsAsFactors=F)
+k=1
+if (plotFlag=="_onePlot") {
+    if (outFormat=="pdf") {
+        pdf(paste("kmPlot",fName1,".pdf",sep=""),width=7, height=length(varList2)*7/2)
+    } else {
+        png(paste("kmPlot",fName1,".png",sep=""),width=2*480,height=length(varList2)*480)
+    }
+    par(mfrow=c(length(varList2),1))
+    par(mar=c(5, 4, 4, 2) + 0.1)
+    par(mar=c(5, 5, 4, 2) + 0.1)
+}
+for (vId1 in 1:length(varList1)) {
+    for (vId2 in 1:length(varList2)) {
+        switch(varList2[vId2],
+        "Chrom3lossBi"={
+            ttl=c("No chromosome 3 loss", "Chromosome 3 loss")
+        },
+        "chr3Loss_chr8qGain_BAP1mut"={
+            ttl=c("No chrom 3 loss + chrom 8q gain + BAP1 mutation","Chrom 3 loss + chrom 8q gain + BAP1 mutation")
+        }
+        )
+        dat=clin[which(!is.na(clin$met)),]
+        x=table(dat[,varList1[vId1]],dat[,varList2[vId2]],dnn=c(varList1[vId1],varList2[vId2]))
+        ttl=paste(ttl," (N=",table(dat[,varList2[vId2]]),", metastatic=",x[2,],")",sep="")
+        model2=as.formula(paste("Surv(timeToMet,met)~",varList2[vId2],sep=""))
+        res=survdiff(model2,data=dat)
+        pv=1-pchisq(res$chisq,length(res$n)-1)
+        tbl$variable1[k]=varInfo$varName[match(varList1[vId1],varInfo$varList)]
+        tbl$variable2[k]=varInfo$varName[match(varList2[vId2],varInfo$varList)]
+        tbl$testType[k]="Log-rank test"
+        tbl$pv[k]=pv
+        if (plotFlag=="") {
+            if (outFormat=="pdf") {
+                pdf(paste("kmPlot_",varList1[vId1],"_",varList2[vId2],fName1,".pdf",sep=""),width=7, height=7/2)
+            } else {
+                png(paste("kmPlot_",varList1[vId1],"_",varList2[vId2],fName1,".png",sep=""),width=2*480,height=1*480)
+            }
+        }
+        plot(survfit(model2,data=dat),col=colList, xlab="Time to metastasis (months)",ylab="Metastasis free survival",cex.axis=1.5,cex.lab=2,mark.time=T)
+        legend(1,.20,ttl,lty="solid",col=colList,cex=1.5)
+        title("Kaplan-Meier Curves",cex.main=2)
+        if (plotFlag=="") {
+            dev.off()
+        }
+        k=k+1
+    }
+}
+if (plotFlag=="_onePlot") {
+    dev.off()
+}
+statTbl=rbind(statTbl,tbl)
+
+## --------------
 
 for (k in c("pv")) statTbl[,k]=signif(statTbl[,k],4)
 for (k in c("ld","or","lcb","ucb")) statTbl[,k]=round(statTbl[,k],4)
 nm=c("variable1","variable2","test","p-value","location shift","odds ratio","lower confidence bound","upper confidence bound")
 write.table(paste(nm,collapse="\t"),file=paste("stat",fName1,".txt",sep=""), sep="\t", col.names=F, row.names=F, quote=F,append=F)
 write.table(statTbl,file=paste("stat",fName1,".txt",sep=""), sep="\t", col.names=F, row.names=F, quote=F,append=T)
-
-
 
 ## --------------
 # Multivariate analysis proposed: Chromsome 3 loss vs Gene Expression Profile Class and TNM stage
