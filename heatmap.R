@@ -66,7 +66,7 @@ datFlag=""
 
 colGeneId="affyId"; colIdPV="FDR"; colNamePV="QV"
 
-varList=c("monosomy3Type","Chrom1pLoss","Chrom6pgainBi","Chrom8qgain","GNAQ","GNA11","BAP1.loss","EIF1Ax","SF3B1")
+varList=c("Chrom1pLoss","SF3B1","GNA11","GNAQ","EIF1Ax","Chrom6pgainBi","BAP1.loss","Chrom8qgain","monosomy3Type")
 datObj=list(expr=t(as.matrix(clin[,varList])),ann=data.frame(id=varList,geneId=varList,geneName=varInfo$varNameLong[match(varList,varInfo$varList)],stringsAsFactors=F),phen=clin[,c("id","CCGL.Pt.Number","Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEP3")])
 for (k in c("Ciliarybodyinvolvment","EOE","Epithelioidcellsany")) {
     datObj$phen[,k]=as.character(datObj$phen[,k])
@@ -123,6 +123,9 @@ for (compFlag in compList) {
                     sampleBar="cluster"
                     geneBar="clusterPr"
                     nClust=c(2,3)
+                    sampleBar=""
+                    geneBar=""
+                    nClust=c(NA,NA)
                 } else {
                     grpUniq=sub("_","",subsetFlag)
                     subsetName=paste(", ",grpUniq,sep="")
@@ -191,8 +194,6 @@ for (compFlag in compList) {
                     geneBar="clusterPr"
                     i=1:nrow(expr)
                 } else {
-                    geneBar=""
-                    geneBar="clusterPr"
                     expr=expr[i2,]
                     annRow=annRow[i2,]
                     i=1:nrow(expr)
@@ -229,6 +230,7 @@ for (compFlag in compList) {
                 
                 varList=c("Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEP3")
                 varList=c("Largestbasaldiam","Thickness","tnm4","Ciliarybodyinvolvment","EOE","Epithelioidcellsany")
+                varList=c("Epithelioidcellsany","EOE","Ciliarybodyinvolvment","Largestbasaldiam","Thickness","tnm4")
                 #varName=paste(varList," ",sep="")
                 #varName=paste(c("Largestbasaldiam","Thickness","TNM","Pathology","CiliaryBodyInvolvment","EOE","EpithelioidCell","GEP")," ",sep="")
                 varName=paste(varInfo$varNameLong[match(varList,varInfo$varList)]," ",sep="")
@@ -242,6 +244,8 @@ for (compFlag in compList) {
                 nameRow=annRow$geneName
                 if (is.null(varFList)) {
                     colRow=NULL
+                    colRow=matrix(nrow=2,ncol=nrow(annRow))
+                    rownames(colRow)=rep("",nrow(colRow))
                 } else {
                     colRow=matrix(nrow=length(varFList),ncol=nrow(annRow))
                     for (varId in 1:length(varFList)) {
@@ -271,8 +275,10 @@ for (compFlag in compList) {
                         lim=range(x,na.rm=T)
                         #lim=quantile(x,probs=c(.1,.9),na.rm=T)
                         x[x<lim[1]]=lim[1]; x[x>lim[2]]=lim[2]
+                        x=x-min(x)+1
                         grpUniq=lim[1]:lim[2]
-                        colColUniq=gray(0:(length(grpUniq)-1)/length(grpUniq))
+                        colColUniq=maPalette(high=colList2[2],low=colList2[1],k=length(grpUniq))
+                        #colColUniq=gray(0:(length(grpUniq)-1)/length(grpUniq))
                         colCol[varId,]=colColUniq[x[j]]
                     } else {
                         if (varList[varId]%in%c("time")) {
@@ -303,6 +309,13 @@ for (compFlag in compList) {
                     }
                     )
                     clustC=hclust(distMat, method=linkMethod)
+                } else {
+                    x=arrayData[which(annRow$id=="monosomy3Type"),]
+                    x[which(x==2)]=0.5
+                    j=order(x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=T)
+                    arrayData=arrayData[,j]
+                    annCol=annCol[j,]
+                    clustC=NA
                 }
                 if (geneBar=="clusterPr") {
                     switch(distMethod,
@@ -313,6 +326,8 @@ for (compFlag in compList) {
                     }
                     )
                     clustR=hclust(distMat, method=linkMethod)
+                } else {
+                    clustR=NA
                 }
                 
                 print("summary(range(c(arrayData),na.rm=T))")
@@ -360,6 +375,7 @@ for (compFlag in compList) {
                     margins=c(10,20)
                     margins=c(6,0.5)
                     margins=c(6,6)
+                    margins=c(1,4)
                     png(paste(subDir,"heatmap",fNameOut,".png",sep=""),width=480*2,height=480*2)
                 } else {
                     margins=c(12,5)
@@ -411,7 +427,7 @@ subDir="legend/"
 if (subDir!="" & !file.exists(subDir)){
     dir.create(file.path(subDir))
 }
-if (!is.null(colRow)) {
+if (!is.null(varFList)) {
     for (varId in 1:length(varFListAll)) {
         if (length(grep("signif_",varFListAll[varId]))==1) {
             nm=""
@@ -454,9 +470,12 @@ if (!is.null(colCol)) {
             x=round(annColAll[,varListAll[varId]])
             lim=range(x,na.rm=T)
             #lim=quantile(x,probs=c(.1,.9),na.rm=T)
-            grpUniq=lim[1]:lim[2]
-            colColUniq=gray(0:(length(grpUniq)-1)/length(grpUniq))
-            heatmapColorBar(limit=lim,cols=c(colColUniq[c(length(colColUniq),1)],median(1:length(colColUniq))),main=varNameAll[varId])
+            heatmapColorBar(limit=lim,cols=rev(colList2),main=varNameAll[varId])
+            if (F) {
+                grpUniq=lim[1]:lim[2]
+                colColUniq=gray(0:(length(grpUniq)-1)/length(grpUniq))
+                heatmapColorBar(limit=lim,cols=c(colColUniq[c(length(colColUniq),1)],median(1:length(colColUniq))),main=varNameAll[varId])
+            }
         } else {
             if (outFormat=="png") {
                 png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)

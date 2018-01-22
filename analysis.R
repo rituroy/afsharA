@@ -271,6 +271,9 @@ statTbl=rbind(statTbl,tbl)
 
 library(survival)
 
+## Follow-up time summary
+summary(clin$timeToMet[which(clin$met==0)],na.rm=T)
+
 plotFlag=""
 plotFlag="_onePlot"
 
@@ -296,17 +299,20 @@ if (plotFlag=="_onePlot") {
 }
 for (vId1 in 1:length(varList1)) {
     for (vId2 in 1:length(varList2)) {
+        cat("\n",varList2[vId2],"\n")
         switch(varList2[vId2],
         "Chrom3lossBi"={
-            ttl=c("No chromosome 3 loss", "Chromosome 3 loss")
+            ttl=c("No loss of chromosome 3", "Loss of Chromosome 3")
         },
         "chr3Loss_chr8qGain_BAP1mut"={
-            ttl=c("No chrom 3 loss + chrom 8q gain + BAP1 mutation","Chrom 3 loss + chrom 8q gain + BAP1 mutation")
+            #ttl=c("No chrom 3 loss + chrom 8q gain + BAP1 mutation","Chrom 3 loss + chrom 8q gain + BAP1 mutation")
+            ttl=c("No loss of chromosome 3 or 8q gain or BAP1 mutation","Loss of chromosome 3 and 8q gain and BAP1 mutation")
         }
         )
         dat=clin[which(!is.na(clin$met)),]
         x=table(dat[,varList1[vId1]],dat[,varList2[vId2]],dnn=c(varList1[vId1],varList2[vId2]))
-        ttl=paste(ttl," (N=",table(dat[,varList2[vId2]]),", metastatic=",x[2,],")",sep="")
+        #ttl=paste(ttl," (N=",table(dat[,varList2[vId2]]),", metastatic=",x[2,],")",sep="")
+        ttl=paste(ttl," (",table(dat[,varList2[vId2]]),")",sep="")
         model2=as.formula(paste("Surv(timeToMet,met)~",varList2[vId2],sep=""))
         res=survdiff(model2,data=dat)
         pv=1-pchisq(res$chisq,length(res$n)-1)
@@ -321,7 +327,10 @@ for (vId1 in 1:length(varList1)) {
                 png(paste("kmPlot_",varList1[vId1],"_",varList2[vId2],fName1,".png",sep=""),width=2*480,height=1*480)
             }
         }
-        plot(survfit(model2,data=dat),col=colList, xlab="Time to metastasis (months)",ylab="Metastasis free survival",cex.axis=1.5,cex.lab=2,mark.time=T)
+        fit=survfit(model2,data=dat)
+        print(fit)
+        plot(fit,col=colList, xlab="Time to metastasis (months)",ylab="Metastasis free survival",cex.axis=1.5,cex.lab=2,mark.time=T)
+        #abline(a=.5, b=0) ## median survival
         legend(1,.20,ttl,lty="solid",col=colList,cex=1.5)
         title("Kaplan-Meier Curves",cex.main=2)
         if (plotFlag=="") {
