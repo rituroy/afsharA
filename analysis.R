@@ -58,12 +58,14 @@ clin$Chrom6pgainBi=clin$Chrom6pgain; clin$Chrom6pgainBi[!clin$Chrom6pgain%in%(0:
 clin$GEP3=clin$GEP; clin$GEP3[!clin$GEP%in%c("1","2","3")]=NA
 clin$tnm4=substr(clin$TNM,1,2)
 clin$chr3Loss_chr8qGain_BAP1mut=as.integer(clin$Chrom3lossBi & clin$Chrom8qgain & clin$BAP1.loss)
+#clin$chr3_chr3chr8qBAP1=clin$Chrom3lossBi
+#clin$chr3_chr3chr8qBAP1[which(clin$Chrom3lossBi & clin$Chrom8qgain & clin$BAP1.loss)]=2
 j=which(clin$met==0)
 clin$timeToMet[j]=clin$follow.up.months[j]
 
-varInfo=data.frame(varList=c("met","Agem","Race","Sex","tnm4","path3","Largestbasaldiam","Thickness","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Monosomy.3","Partial.monosomy.3","monosomy3Type","Chrom3loss","Chrom3lossBi","Chrom6pgainBi","Chrom6qloss","Chrom8ploss","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","GEP3","GEP2"),
-varName=c("Metastasis","Age","Race","Sex","TNM","Pathology","LargestBasalDiameter","Thickness","CiliaryBodyInvolvement","EOE","EpithelioidCell","Chrom1pLoss","Monosomy3","PartialMonosomy3","Chrom3Loss","Chrom3loss","Chrom3Loss","Chrom6pGain","Chrom6qLoss","Chrom8pLoss","Chrom8qGain","GNAQ","GNA11","BAP1Loss","BAP1Rearrange","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","GEP","GEP"),
-varNameLong=c("Metastasis","Age","Race","Sex","TNM stage","Pathology","Largest basal tumor diameter","Tumor thickness","Ciliary body involvement","Extraocular extension","Epithelioid cells","Chrom 1p loss","Monosomy 3","Partial monosomy 3","Chrom 3 loss","Chrom 3 loss","Chrom 3 loss","Chrom 6p gain","Chrom 6q loss","Chrom 8p loss","Chrom 8q gain","GNAQ mutation","GNA11 mutation","BAP1 mutation","BAP1 rearrangement","EIF1Ax mutation","SF3B1 mutation","GNAQ_GNA11 mutation","BAP1_EIF1Ax_SF3B1 mutation","chrom 3 loss + chrom 8q gain + BAP1 mutation","GEP","GEP"),stringsAsFactors=F)
+varInfo=data.frame(varList=c("met","Agem","Race","Sex","tnm4","path3","Largestbasaldiam","Thickness","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","Chrom1pLoss","Monosomy.3","Partial.monosomy.3","monosomy3Type","Chrom3loss","Chrom3lossBi","Chrom6pgainBi","Chrom6qloss","Chrom8ploss","Chrom8qgain","GNAQ","GNA11","BAP1.loss","BAP1.rearrangement","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","chr3_chr3chr8qBAP1","GEP3","GEP2"),
+varName=c("Metastasis","Age","Race","Sex","TNM","Pathology","LargestBasalDiameter","Thickness","CiliaryBodyInvolvement","EOE","EpithelioidCell","Chrom1pLoss","Monosomy3","PartialMonosomy3","Chrom3Loss","Chrom3loss","Chrom3Loss","Chrom6pGain","Chrom6qLoss","Chrom8pLoss","Chrom8qGain","GNAQ","GNA11","BAP1Loss","BAP1Rearrange","EIF1Ax","SF3B1","GNAQ_GNA11","BAP1_EIF1Ax_SF3B1","chr3Loss_chr8qGain_BAP1mut","chr3_chr3chr8qBAP1","GEP","GEP"),
+varNameLong=c("Metastasis","Age","Race","Sex","TNM stage","Pathology","Largest basal tumor diameter","Tumor thickness","Ciliary body involvement","Extraocular extension","Epithelioid cells","Chrom 1p loss","Monosomy 3","Partial monosomy 3","Chrom 3 loss","Chrom 3 loss","Chrom 3 loss","Chrom 6p gain","Chrom 6q loss","Chrom 8p loss","Chrom 8q gain","GNAQ mutation","GNA11 mutation","BAP1 mutation","BAP1 rearrangement","EIF1Ax mutation","SF3B1 mutation","GNAQ_GNA11 mutation","BAP1_EIF1Ax_SF3B1 mutation","chrom 3 loss + chrom 8q gain + BAP1 mutation","chrom 3 loss with/without chrom 8q gain/BAP1 mutation","GEP","GEP"),stringsAsFactors=F)
 catInfo=data.frame(catList=c("0","1"),catNameShort=c("noMut","mut"),catNameLong=c("no mutation","mutation"),stringsAsFactors=F)
 
 fName1="_um"
@@ -280,6 +282,7 @@ plotFlag="_onePlot"
 colList=c("green","red")
 
 varList1=c("met")
+#varList2=c("Chrom3lossBi","chr3Loss_chr8qGain_BAP1mut","chr3_chr3chr8qBAP1")
 varList2=c("Chrom3lossBi","chr3Loss_chr8qGain_BAP1mut")
 vId1=1; vId2=1
 n=length(varList1)*length(varList2)
@@ -306,7 +309,10 @@ for (vId1 in 1:length(varList1)) {
         },
         "chr3Loss_chr8qGain_BAP1mut"={
             #ttl=c("No chrom 3 loss + chrom 8q gain + BAP1 mutation","Chrom 3 loss + chrom 8q gain + BAP1 mutation")
-            ttl=c("No loss of chromosome 3 or 8q gain or BAP1 mutation","Loss of chromosome 3 and 8q gain and BAP1 mutation")
+            ttl=c("At least one of the three genetic aberrations absent","Chromosome 3 loss and 8q gain and BAP1 mutation")
+        },
+        "chr3_chr3chr8qBAP1"={
+            ttl=c("No loss of chromosome 3","Loss of chromosome 3 without 8q gain or BAP1 mutation","Loss of chromosome 3 with 8q gain and BAP1 mutation")
         }
         )
         dat=clin[which(!is.na(clin$met)),]

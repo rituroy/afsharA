@@ -2,19 +2,16 @@ dirSrc="/Users/royr/UCSF/"
 dirSrc2=dirSrc
 setwd(paste(dirSrc2,"AfsharA",sep=""))
 
-
 ##############################################
 
 load("tmp.RData")
 
 ###########################################################
 library(marray)
-source(paste(dirSrc,"functions/heatmap.5.6.R",sep=""))
-source(paste(dirSrc,"functions/heatmapAcgh.7.3.R",sep=""))
-
-#source(paste("code/heatmap.5.6.R",sep=""))
-
-#clId=rep(T,nrow(expr))
+#source(paste(dirSrc,"functions/heatmap.5.6.R",sep=""))
+#source(paste(dirSrc,"functions/heatmapAcgh.7.3.R",sep=""))
+source(paste(dirSrc,"functions/heatmap.5.7.R",sep=""))
+source(paste(dirSrc,"functions/heatmapAcgh.7.4.R",sep=""))
 
 lineFlag=T
 
@@ -22,9 +19,11 @@ colList=c("skyblue","blue","yellow","purple","red")
 colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
 colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
 colList=c("blue","forestgreen","yellow","red")
+colList=c("white","grey90","grey70","grey40")
 colList2=c("skyblue","blue")
 colList2=colList
 colList2=c("blue","red")
+colList2=c("white","grey40")
 colHM=c("red","blue","grey")
 colHM=list(c("grey"),NULL,NULL)
 colHM=c("grey","white","white")
@@ -35,8 +34,8 @@ distMethod="pearson"
 distMethod="cosine"
 linkMethod="ward.D2"
 
-outFormat="pdf"
 outFormat=""
+outFormat="pdf"
 outFormat="png"
 
 altTypeUniq1=1:2
@@ -244,7 +243,7 @@ for (compFlag in compList) {
                 nameRow=annRow$geneName
                 if (is.null(varFList)) {
                     colRow=NULL
-                    colRow=matrix(nrow=2,ncol=nrow(annRow))
+                    colRow=matrix("white",nrow=2,ncol=nrow(annRow))
                     rownames(colRow)=rep("",nrow(colRow))
                 } else {
                     colRow=matrix(nrow=length(varFList),ncol=nrow(annRow))
@@ -349,10 +348,11 @@ for (compFlag in compList) {
                     limit1[2]=max(c(arrayData2),na.rm=T)
                 }
                 lim=150
-                cexThis=c(2,2,0.5)
                 main=NULL
                 main=header
                 cexThis=c(2,2,0.5)
+                cexThis=c(2,2,4)
+                cexThis=c(2,2,4,1.5,1.5)
                 addTextThis=NULL
                 if (lineFlag) {
                     lim=150
@@ -376,14 +376,15 @@ for (compFlag in compList) {
                     margins=c(6,0.5)
                     margins=c(6,6)
                     margins=c(1,4)
-                    png(paste(subDir,"heatmap",fNameOut,".png",sep=""),width=480*2,height=480*2)
+                    margins=c(70,4)
+                    png(paste(subDir,"heatmap",fNameOut,".png",sep=""),width=480*3,height=480*2)
                 } else {
                     margins=c(12,5)
                     pdf(paste(subDir,"heatmap",fNameOut,".pdf",sep=""))
                 }
                 totalC=ncol(arrayData)
                 #hcc=heatmap3(x=arrayData2, Rowv=clustR, Colv=clustC, distfun=distMethod, hclustfun=hclust, symm=F, ColSideColors=colCol, RowSideColors=colRow, labCol=nameCol, labRow=nameRow, ncr=nClust[1], ncc=nClust[2], scale="none", na.rm=F, margins=margins, main=main, xlab=NULL, ylab=NULL, zlm=limit1, cexCol=cexThis[2], cexRow=cexThis[1], high=colHM[[1]], low=colHM[[2]], mid=colHM[[3]],lineRow=lineList$row, lineCol=lineList$col, lineColor=lineList$color, addText=addTextThis, cexText=cexThis[3])
-                hcc=heatmap3(x=arrayData2, Rowv=clustR, Colv=clustC, distfun=distMethod, hclustfun=hclust, symm=F, ColSideColors=colCol, RowSideColors=colRow, labCol=nameCol, labRow=nameRow, ncr=NA, ncc=NA, scale="none", na.rm=F, margins=margins, main=main, xlab=NULL, ylab=NULL, zlm=limit1, cexCol=cexThis[2], cexRow=cexThis[1], high=colHM[[1]], low=colHM[[2]], mid=colHM[[3]],lineRow=lineList$row, lineCol=lineList$col, lineColor=lineList$color, addText=addTextThis, cexText=cexThis[3])
+                hcc=heatmap3(x=arrayData2, Rowv=clustR, Colv=clustC, distfun=distMethod, hclustfun=hclust, symm=F, ColSideColors=colCol, RowSideColors=colRow, labCol=nameCol, labRow=nameRow, ncr=NA, ncc=NA, scale="none", na.rm=F, margins=margins, main=main, xlab=NULL, ylab=NULL, zlm=limit1, cexCol=cexThis[2], cexRow=cexThis[1], cexRowSide=cexThis[4], cexColSide=cexThis[5], high=colHM[[1]], low=colHM[[2]], mid=colHM[[3]],lineRow=lineList$row, lineCol=lineList$col, lineColor=lineList$color, addText=addTextThis, cexText=cexThis[3],lheiColSide=0.1,densColor=10)
                 dev.off()
                 
                 if (is.na(nClust[1])) {
@@ -477,11 +478,6 @@ if (!is.null(colCol)) {
                 heatmapColorBar(limit=lim,cols=c(colColUniq[c(length(colColUniq),1)],median(1:length(colColUniq))),main=varNameAll[varId])
             }
         } else {
-            if (outFormat=="png") {
-                png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)
-            } else if (outFormat=="pdf") {
-                pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".pdf",sep=""))
-            }
             if (varList[varId]%in%c("time")) {
                 x=annColAll[,varListAll[varId]]
             } else {
@@ -490,13 +486,37 @@ if (!is.null(colCol)) {
             grpUniq=table(x)
             #grpUniq=paste(names(grpUniq)," (",grpUniq,")",sep="")
             grpUniq=names(grpUniq)
-            k=1:length(grpUniq)
             if (length(grpUniq)<=length(colList2)) {
-                sampleColorLegend(tls=grpUniq[k],col=colList2,legendTitle=varNameAll[varId],cex=1.5)
+                colListThis=colList2
             } else if (length(grpUniq)<=length(colList)) {
-                sampleColorLegend(tls=grpUniq[k],col=colList,legendTitle=varNameAll[varId],cex=1.5)
+                colListThis=colList
             } else {
-                sampleColorLegend(tls=grpUniq[k],col=rainbow(length(grpUniq)),legendTitle=varNameAll[varId],cex=1.5)
+                colListThis=rainbow(length(grpUniq))
+            }
+            if (length(grpUniq)==2 & all(grpUniq%in%c("absent","present"))) {
+                if (outFormat=="png") {
+                    png(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.png",sep=""),width=480,height=480)
+                } else if (outFormat=="pdf") {
+                    pdf(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.pdf",sep=""))
+                }
+                legTtl=NULL
+            } else {
+                if (outFormat=="png") {
+                    png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)
+                } else if (outFormat=="pdf") {
+                    pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".pdf",sep=""))
+                }
+                legTtl=varNameAll[varId]
+            }
+            sampleColorLegend(tls=grpUniq,col=colListThis,legendTitle=legTtl,cex=1.5)
+            if (any(is.na(x))) {
+                if (outFormat!="") dev.off()
+                if (outFormat=="png") {
+                    png(paste(subDir,"heatmapSampleColorBarLegend_NA.png",sep=""),width=480,height=480)
+                } else if (outFormat=="pdf") {
+                    pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
+                }
+                sampleColorLegend(tls="not available",col="white",cex=1.5,density=10)
             }
         }
         if (outFormat!="") dev.off()
@@ -526,7 +546,7 @@ if (length(colHMAll[[1]])==1) {
         pdf(paste(subDir,"heatmapColorLegend",fNameOut2,".pdf",sep=""))
     }
     grpUniq=sort(altTypeUniq2[,1])
-    grpUniq=c("mutation / monosomy 3","partial monosomy 3")
+    grpUniq=c("mutation / monosomy 3","partial monosomy 3 loss")
     cexThis=NULL
     cexThis=1.5
     if (outFormat=="pdf") cexThis=1
