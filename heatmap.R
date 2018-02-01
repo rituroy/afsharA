@@ -67,6 +67,7 @@ colGeneId="affyId"; colIdPV="FDR"; colNamePV="QV"
 
 varList=c("Chrom1pLoss","SF3B1","GNA11","GNAQ","EIF1Ax","Chrom6pgainBi","BAP1.loss","Chrom8qgain","monosomy3Type")
 datObj=list(expr=t(as.matrix(clin[,varList])),ann=data.frame(id=varList,geneId=varList,geneName=varInfo$varNameLong[match(varList,varInfo$varList)],stringsAsFactors=F),phen=clin[,c("id","CCGL.Pt.Number","Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEP3")])
+colnames(datObj$expr)=clin$id
 for (k in c("Ciliarybodyinvolvment","EOE","Epithelioidcellsany")) {
     datObj$phen[,k]=as.character(datObj$phen[,k])
     datObj$phen[which(datObj$phen[,k]=="0"),k]="absent"
@@ -239,8 +240,22 @@ for (compFlag in compList) {
                 varList=varList[k]
                 varName=varName[k]
                 
+                nameRow=sapply(annRow$geneName,function(x,maxX) {paste(paste(rep(" ",maxX-nchar(x)+1),collapse=""),x,sep="")},maxX=max(nchar(annRow$geneName)),USE.NAMES=F)
+                
+                nameRow=annRow$geneName
+                nameRow[which(nameRow=="Chrom 1p loss")]=  "   Chrom 1p loss"
+                nameRow[which(nameRow=="SF3B1 mutation")]= " SF3B1 mutation"
+                nameRow[which(nameRow=="GNA11 mutation")]= "GNA11 mutation"
+                nameRow[which(nameRow=="GNAQ mutation")]=  " GNAQ mutation"
+                nameRow[which(nameRow=="EIF1Ax mutation")]="EIF1Ax mutation"
+                nameRow[which(nameRow=="Chrom 6p gain")]=  "   Chrom 6p gain"
+                nameRow[which(nameRow=="BAP1 mutation")]=  "  BAP1 mutation"
+                nameRow[which(nameRow=="Chrom 8q gain")]=  "   Chrom 8q gain"
+                nameRow[which(nameRow=="Chrom 3 loss")]=   "     Chrom 3 loss"
+                
                 #nameRow=rep("",nrow(annRow))
                 nameRow=annRow$geneName
+
                 if (is.null(varFList)) {
                     colRow=NULL
                     colRow=matrix("white",nrow=2,ncol=nrow(annRow))
@@ -263,8 +278,8 @@ for (compFlag in compList) {
                     rownames(colRow)=varFName
                 }
                 
-                nameCol=annCol$id2
                 nameCol=rep("",nrow(annCol))
+                #nameCol=annCol$id
                 colCol=NULL
                 colCol=matrix(nrow=length(varList),ncol=nrow(annCol))
                 for (varId in 1:length(varList)) {
@@ -314,6 +329,8 @@ for (compFlag in compList) {
                     j=order(x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=T)
                     arrayData=arrayData[,j]
                     annCol=annCol[j,]
+                    nameCol=nameCol[j]
+                    colCol=colCol[,j]
                     clustC=NA
                 }
                 if (geneBar=="clusterPr") {
@@ -477,6 +494,13 @@ if (!is.null(colCol)) {
                 colColUniq=gray(0:(length(grpUniq)-1)/length(grpUniq))
                 heatmapColorBar(limit=lim,cols=c(colColUniq[c(length(colColUniq),1)],median(1:length(colColUniq))),main=varNameAll[varId])
             }
+            dev.off()
+            if (outFormat=="png") {
+                png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],"_title.png",sep=""))
+            } else if (outFormat=="pdf") {
+                pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],"_title.pdf",sep=""))
+            }
+            sampleColorLegend(tls=varListAll[varId],col=colList,legendTitle=varNameAll[varId],cex=1.5)
         } else {
             if (varList[varId]%in%c("time")) {
                 x=annColAll[,varListAll[varId]]
@@ -500,6 +524,7 @@ if (!is.null(colCol)) {
                     pdf(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.pdf",sep=""))
                 }
                 legTtl=NULL
+                legTtl="Clinical, histologic and genetic features"
             } else {
                 if (outFormat=="png") {
                     png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)
@@ -516,7 +541,8 @@ if (!is.null(colCol)) {
                 } else if (outFormat=="pdf") {
                     pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
                 }
-                sampleColorLegend(tls="not available",col="white",cex=1.5,density=10)
+                legTtl="Clinical, histologic and genetic features"
+                sampleColorLegend(tls="insufficient tissue for histopathology",col="white",cex=1.5,legendTitle=legTtl,density=10)
             }
         }
         if (outFormat!="") dev.off()
@@ -546,15 +572,32 @@ if (length(colHMAll[[1]])==1) {
         pdf(paste(subDir,"heatmapColorLegend",fNameOut2,".pdf",sep=""))
     }
     grpUniq=sort(altTypeUniq2[,1])
-    grpUniq=c("mutation / monosomy 3","partial monosomy 3 loss")
+    grpUniq=c("mutation / monosomy 3","partial chromosome 3 loss")
     cexThis=NULL
     cexThis=1.5
     if (outFormat=="pdf") cexThis=1
-    sampleColorLegend(tls=grpUniq,col=colHMAll[[1]],legendTitle="Mutation status",cex=cexThis)
+    legTtl="Mutation status"
+    legTtl="Clinical, histologic and genetic features"
+    sampleColorLegend(tls=grpUniq,col=colHMAll[[1]],legendTitle=legTtl,cex=cexThis)
     if (outFormat!="") dev.off()
     
 }
 if (outFormat=="") dev.off()
+
+if (F) {
+    if (outFormat=="png") {
+        png(paste(subDir,"heatmapGeneLegend",fNameOut2,".png",sep=""),width=width,height=height)
+    } else if (outFormat=="pdf") {
+        pdf(paste(subDir,"heatmapGeneLegend",fNameOut2,".pdf",sep=""))
+    }
+    grpUniq=rev(annRow$geneName)
+    grpUniq=rev(sapply(annRow$geneName,function(x,maxX) {paste(paste(rep(" ",maxX-nchar(x)+1),collapse=""),x,sep="")},maxX=max(nchar(annRow$geneName)),USE.NAMES=F))
+    cexThis=NULL
+    cexThis=1.5
+    sampleColorLegend(tls=grpUniq,col="white",cex=cexThis)
+    if (outFormat!="") dev.off()
+}
+
 
 ###########################################################
 ###########################################################
