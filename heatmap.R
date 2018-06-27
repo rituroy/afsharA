@@ -15,15 +15,21 @@ source(paste(dirSrc,"functions/heatmapAcgh.7.4.R",sep=""))
 
 lineFlag=T
 
-colList=c("skyblue","blue","yellow","purple","red")
-colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
-colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
-colList=c("blue","forestgreen","yellow","red")
-colList=c("white","grey90","grey70","grey40")
-colList2=c("skyblue","blue")
-colList2=colList
-colList2=c("blue","red")
-colList2=c("white","grey40")
+if (fName1=="_um_gep") {
+    colList=c("skyblue","blue","yellow","purple","red")
+    colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
+    colList=c("brown","red","orange","yellow","green","cyan","skyblue","blue","pink","magenta","purple","darkgreen")
+    colList=c("blue","forestgreen","yellow","red")
+    colList2=c("skyblue","blue")
+    colList2=colList
+    colList2=c("blue","red")
+} else {
+    colList=c("white","grey90","grey70","grey40")
+    colList2=c("white","grey40")
+
+    colList=c("blue","forestgreen","yellow","red")
+    colList2=c("blue","red")
+}
 colHM=c("red","blue","grey")
 colHM=list(c("grey"),NULL,NULL)
 colHM=c("grey","white","white")
@@ -66,7 +72,7 @@ datFlag=""
 colGeneId="affyId"; colIdPV="FDR"; colNamePV="QV"
 
 varList=c("Chrom1pLoss","SF3B1","GNA11","GNAQ","EIF1Ax","Chrom6pgainBi","BAP1.loss","Chrom8qgain","monosomy3Type")
-datObj=list(expr=t(as.matrix(clin[,varList])),ann=data.frame(id=varList,geneId=varList,geneName=varInfo$varNameLong[match(varList,varInfo$varList)],stringsAsFactors=F),phen=clin[,c("id","CCGL.Pt.Number","Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEP3")])
+datObj=list(expr=t(as.matrix(clin[,varList])),ann=data.frame(id=varList,geneId=varList,geneName=varInfo$varNameLong[match(varList,varInfo$varList)],stringsAsFactors=F),phen=clin[,c("id","CCGL.Pt.Number","Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEPdesc")])
 colnames(datObj$expr)=clin$id
 for (k in c("Ciliarybodyinvolvment","EOE","Epithelioidcellsany")) {
     datObj$phen[,k]=as.character(datObj$phen[,k])
@@ -228,9 +234,10 @@ for (compFlag in compList) {
                 varFListAll=varFList
                 varFNameAll=varFName
                 
-                varList=c("Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEP3")
+                varList=c("Largestbasaldiam","Thickness","tnm4","path3","Ciliarybodyinvolvment","EOE","Epithelioidcellsany","GEPdesc")
                 varList=c("Largestbasaldiam","Thickness","tnm4","Ciliarybodyinvolvment","EOE","Epithelioidcellsany")
                 varList=c("Epithelioidcellsany","EOE","Ciliarybodyinvolvment","Largestbasaldiam","Thickness","tnm4")
+                varList=c("Epithelioidcellsany","EOE","Ciliarybodyinvolvment","Largestbasaldiam","Thickness","tnm4","GEPdesc")
                 #varName=paste(varList," ",sep="")
                 #varName=paste(c("Largestbasaldiam","Thickness","TNM","Pathology","CiliaryBodyInvolvment","EOE","EpithelioidCell","GEP")," ",sep="")
                 varName=paste(varInfo$varNameLong[match(varList,varInfo$varList)]," ",sep="")
@@ -324,9 +331,21 @@ for (compFlag in compList) {
                     )
                     clustC=hclust(distMat, method=linkMethod)
                 } else {
-                    x=arrayData[which(annRow$id=="monosomy3Type"),]
-                    x[which(x==2)]=0.5
-                    j=order(x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=T)
+                    if (fName1=="_um_gep") {
+                        x=arrayData[which(annRow$id=="monosomy3Type"),]
+                        x[which(x==2)]=0.5
+                        #j=order(as.integer(as.factor(annCol$GEPdesc))-99,x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=T)
+                        j=order(annCol$GEPdesc,x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=F)
+                    } else {
+                        x=arrayData[which(annRow$id=="monosomy3Type"),]
+                        x[which(x==2)]=0.5
+                        j=order(x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=T)
+                        
+                        x=arrayData[which(annRow$id=="monosomy3Type"),]
+                        x[which(x==2)]=0.5
+                        x1=annCol$GEPdesc; x1[is.na(x1)]="zzz"
+                        j=order(x1,x,arrayData[which(annRow$id=="Chrom8qgain"),],arrayData[which(annRow$id=="BAP1.loss"),],arrayData[which(annRow$id=="GNAQ"),],arrayData[which(annRow$id=="GNA11"),],arrayData[which(annRow$id=="SF3B1"),],arrayData[which(annRow$id=="EIF1Ax"),],arrayData[which(annRow$id=="Chrom6pgainBi"),],arrayData[which(annRow$id=="Chrom1pLoss"),],decreasing=F)
+                    }
                     arrayData=arrayData[,j]
                     annCol=annCol[j,]
                     nameCol=nameCol[j]
@@ -510,6 +529,8 @@ if (!is.null(colCol)) {
             grpUniq=table(x)
             #grpUniq=paste(names(grpUniq)," (",grpUniq,")",sep="")
             grpUniq=names(grpUniq)
+            p=which(catInfo$variable==varList[varId])
+            if (length(p)!=0) grpUniq=catInfo$catNameLong[p][match(grpUniq,catInfo$catList[p])]
             if (length(grpUniq)<=length(colList2)) {
                 colListThis=colList2
             } else if (length(grpUniq)<=length(colList)) {
@@ -525,6 +546,7 @@ if (!is.null(colCol)) {
                 }
                 legTtl=NULL
                 legTtl="Clinical, histologic and genetic features"
+                legTtl="Clinical and histologic features"
             } else {
                 if (outFormat=="png") {
                     png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)
@@ -536,13 +558,24 @@ if (!is.null(colCol)) {
             sampleColorLegend(tls=grpUniq,col=colListThis,legendTitle=legTtl,cex=1.5)
             if (any(is.na(x))) {
                 if (outFormat!="") dev.off()
-                if (outFormat=="png") {
-                    png(paste(subDir,"heatmapSampleColorBarLegend_NA.png",sep=""),width=480,height=480)
-                } else if (outFormat=="pdf") {
-                    pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
+                if (varList[varId]=="GEPdesc") {
+                    if (outFormat=="png") {
+                        png(paste(subDir,"heatmapSampleColorBarLegend_",varList[varId],"_NA.png",sep=""),width=480,height=480)
+                    } else if (outFormat=="pdf") {
+                        pdf(paste(subDir,"heatmapSampleColorBarLegend_",varList[varId],"_NA.pdf",sep=""))
+                    }
+                    legTtl=NULL
+                    sampleColorLegend(tls="not done",col="white",cex=1.5,legendTitle=legTtl,density=10)
+                } else {
+                    if (outFormat=="png") {
+                        png(paste(subDir,"heatmapSampleColorBarLegend_NA.png",sep=""),width=480,height=480)
+                    } else if (outFormat=="pdf") {
+                        pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
+                    }
+                    legTtl="Clinical, histologic and genetic features"
+                    legTtl="Clinical and histologic features"
+                    sampleColorLegend(tls="insufficient tissue for histopathology",col="white",cex=1.5,legendTitle=legTtl,density=10)
                 }
-                legTtl="Clinical, histologic and genetic features"
-                sampleColorLegend(tls="insufficient tissue for histopathology",col="white",cex=1.5,legendTitle=legTtl,density=10)
             }
         }
         if (outFormat!="") dev.off()
@@ -576,8 +609,8 @@ if (length(colHMAll[[1]])==1) {
     cexThis=NULL
     cexThis=1.5
     if (outFormat=="pdf") cexThis=1
-    legTtl="Mutation status"
     legTtl="Clinical, histologic and genetic features"
+    legTtl="Mutation status"
     sampleColorLegend(tls=grpUniq,col=colHMAll[[1]],legendTitle=legTtl,cex=cexThis)
     if (outFormat!="") dev.off()
     
