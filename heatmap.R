@@ -82,7 +82,7 @@ for (k in c("Ciliarybodyinvolvment","EOE","Epithelioidcellsany")) {
 
 tblCC=NULL
 for (compFlag in compList) {
-    compFName=sapply(compFlag,function(x) {y= strsplit(x," ")[[1]]; y=paste(y[1:min(c(length(y),3))],collapse="_"); gsub("-|/","_",y)}, USE.NAMES=F)
+    compFName=sapply(compFlag,function(x) {y= strsplit(x," ")[[1]]; y=paste(y[1:min(c(length(y),3))],collapse="_"); gsub("-|/","_",y)},USE.NAMES=F)
     if (length(grep("_rnd",compFlag))==1) {
         rndVec=paste("_rnd",1:4,sep="")
         #		rndVec=paste("_rnd",1:20,sep="")
@@ -117,7 +117,7 @@ for (compFlag in compList) {
                     subsetFlag=subsetName=""
                 } else {
                     subsetFlag=paste("_",tolower(transFlag),sep="")
-                    subsetName=paste(", ",transFlag,sep="")
+                    subsetName=paste(",",transFlag,sep="")
                 }
             }
             for (subsetFlag in c("")) {
@@ -134,11 +134,11 @@ for (compFlag in compList) {
                     nClust=c(NA,NA)
                 } else {
                     grpUniq=sub("_","",subsetFlag)
-                    subsetName=paste(", ",grpUniq,sep="")
+                    subsetName=paste(",",grpUniq,sep="")
                     if (grpUniq=="gamma") grpUniq="_"
                     fName2=paste(datadir,"clusterInfoFeature",fName1,compFlag,centrFlag,rndId,".txt",sep="")
                     fName2=paste(datadir,"clusterInfoFeature",fName1,centrFlag,rndId,".txt",sep="")
-                    prId=read.table(file=fName2, header=T, sep="\t", quote="", comment.char="", as.is=T)
+                    prId=read.table(file=fName2,header=T,sep="\t",quote="",comment.char="",as.is=T)
                     prId=prId[,"probesetid"]
                     samId=which(tolower(datObj$phen$type3)==grpUniq)
                     sampleBar=""
@@ -151,7 +151,7 @@ for (compFlag in compList) {
                     i1=which(stat_1[,colIdPV]<pThres)
                     if (length(i1)==0) next
                     fNameOut=paste(fName1,compFName,subsetFlag,centrFlag,"_",colNamePV,pThres,datFlag,sep="")
-                    header=paste(compName2,subsetName,", ",colNamePV,"<",pThres,sep="")
+                    header=paste(compName2,subsetName,",",colNamePV,"<",pThres,sep="")
                     dat0=eset$expr
                     switch(datFlag,
                     "_combatAdj"={dat0=exprCom
@@ -195,7 +195,7 @@ for (compFlag in compList) {
                     annRow=annRow[i2,]
                     i=1:nrow(expr)
                 } else if (length(grep("_top",compFlag))==1) {
-                    header=paste(header,", n=",nrow(expr),sep="")
+                    header=paste(header,",n=",nrow(expr),sep="")
                     geneBar=""
                     geneBar="clusterPr"
                     i=1:nrow(expr)
@@ -329,7 +329,7 @@ for (compFlag in compList) {
                         distMat=getCosineDist(t(dat))
                     }
                     )
-                    clustC=hclust(distMat, method=linkMethod)
+                    clustC=hclust(distMat,method=linkMethod)
                 } else {
                     if (fName1=="_um_gep") {
                         x=arrayData[which(annRow$id=="monosomy3Type"),]
@@ -360,7 +360,7 @@ for (compFlag in compList) {
                         distMat=getCosineDist(dat)
                     }
                     )
-                    clustR=hclust(distMat, method=linkMethod)
+                    clustR=hclust(distMat,method=linkMethod)
                 } else {
                     clustR=NA
                 }
@@ -419,8 +419,8 @@ for (compFlag in compList) {
                     pdf(paste(subDir,"heatmap",fNameOut,".pdf",sep=""))
                 }
                 totalC=ncol(arrayData)
-                #hcc=heatmap3(x=arrayData2, Rowv=clustR, Colv=clustC, distfun=distMethod, hclustfun=hclust, symm=F, ColSideColors=colCol, RowSideColors=colRow, labCol=nameCol, labRow=nameRow, ncr=nClust[1], ncc=nClust[2], scale="none", na.rm=F, margins=margins, main=main, xlab=NULL, ylab=NULL, zlm=limit1, cexCol=cexThis[2], cexRow=cexThis[1], high=colHM[[1]], low=colHM[[2]], mid=colHM[[3]],lineRow=lineList$row, lineCol=lineList$col, lineColor=lineList$color, addText=addTextThis, cexText=cexThis[3])
-                hcc=heatmap3(x=arrayData2, Rowv=clustR, Colv=clustC, distfun=distMethod, hclustfun=hclust, symm=F, ColSideColors=colCol, RowSideColors=colRow, labCol=nameCol, labRow=nameRow, ncr=NA, ncc=NA, scale="none", na.rm=F, margins=margins, main=main, xlab=NULL, ylab=NULL, zlm=limit1, cexCol=cexThis[2], cexRow=cexThis[1], cexRowSide=cexThis[4], cexColSide=cexThis[5], high=colHM[[1]], low=colHM[[2]], mid=colHM[[3]],lineRow=lineList$row, lineCol=lineList$col, lineColor=lineList$color, addText=addTextThis, cexText=cexThis[3],lheiColSide=0.1,densColor=10)
+                #hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=nClust[1],ncc=nClust[2],scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3])
+                hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=NA,ncc=NA,scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],cexRowSide=cexThis[4],cexColSide=cexThis[5],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3],lheiColSide=0.1,densColor=10)
                 dev.off()
                 
                 if (is.na(nClust[1])) {
@@ -435,7 +435,7 @@ for (compFlag in compList) {
                     i=clustR$order
                 }
                 tbl=cbind(geneMut=annRow$geneName[i],clustId,order=1:nrow(annRow))
-                write.table(tbl, paste(subDir,"clusterInfoFeature",fNameOut,".txt",sep=""), sep="\t", col.names=T, row.names=F, quote=F)
+                write.table(tbl,paste(subDir,"clusterInfoFeature",fNameOut,".txt",sep=""),sep="\t",col.names=T,row.names=F,quote=F)
                 
                 if (is.na(nClust[2])) {
                     clustId=paste("cluster",1,sep="")
@@ -443,7 +443,7 @@ for (compFlag in compList) {
                 } else {
                     if (F) {
                         pdf(paste(subDir,"clusterSamples",fNameOut,".pdf",sep=""))
-                        plot(clustC,main=paste("Sample clusters with ",nClust[2]," main clusters marked in red",sep=""),xlab="",sub="",ylab=NULL,axes=F, cex=.2); rect.hclust(clustC,k=nClust[2])
+                        plot(clustC,main=paste("Sample clusters with ",nClust[2]," main clusters marked in red",sep=""),xlab="",sub="",ylab=NULL,axes=F,cex=.2); rect.hclust(clustC,k=nClust[2])
                         dev.off()
                     }
                     clustId=cutree(clustC,k=nClust[2])[clustC$order]
@@ -454,7 +454,7 @@ for (compFlag in compList) {
                     j=clustC$order
                 }
                 tbl=cbind(annCol[j,which(!names(annCol)%in%c("id2","order"))],clustId,order=1:nrow(annCol))
-                write.table(tbl, paste(subDir,"clusterInfoSample",fNameOut,".txt",sep=""), sep="\t", col.names=T, row.names=F, quote=F)
+                write.table(tbl,paste(subDir,"clusterInfoSample",fNameOut,".txt",sep=""),sep="\t",col.names=T,row.names=F,quote=F)
             }
         }
     }
@@ -545,7 +545,7 @@ if (!is.null(colCol)) {
                     pdf(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.pdf",sep=""))
                 }
                 legTtl=NULL
-                legTtl="Clinical, histologic and genetic features"
+                legTtl="Clinical,histologic and genetic features"
                 legTtl="Clinical and histologic features"
             } else {
                 if (outFormat=="png") {
@@ -572,7 +572,7 @@ if (!is.null(colCol)) {
                     } else if (outFormat=="pdf") {
                         pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
                     }
-                    legTtl="Clinical, histologic and genetic features"
+                    legTtl="Clinical,histologic and genetic features"
                     legTtl="Clinical and histologic features"
                     sampleColorLegend(tls="insufficient tissue for histopathology",col="white",cex=1.5,legendTitle=legTtl,density=10)
                 }
@@ -591,8 +591,8 @@ if (length(colHMAll[[1]])==1) {
     }
     if (F) {
         heatmapColorBar=function(limit,cols=c("green","red","black")) {
-            try <- maPalette(high=cols[1], low=cols[2], mid=cols[3],k=15)
-            maColorBar(try, scale=limit,k=3)
+            try <- maPalette(high=cols[1],low=cols[2],mid=cols[3],k=15)
+            maColorBar(try,scale=limit,k=3)
         }
     }
     heatmapColorBar(limit=limit1,cols=unlist(colHMAll),main="Alteration")
@@ -609,7 +609,7 @@ if (length(colHMAll[[1]])==1) {
     cexThis=NULL
     cexThis=1.5
     if (outFormat=="pdf") cexThis=1
-    legTtl="Clinical, histologic and genetic features"
+    legTtl="Clinical,histologic and genetic features"
     legTtl="Mutation status"
     sampleColorLegend(tls=grpUniq,col=colHMAll[[1]],legendTitle=legTtl,cex=cexThis)
     if (outFormat!="") dev.off()

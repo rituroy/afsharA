@@ -11,6 +11,22 @@ fName1="_um"
 
 ##############################################
 if (F) {
+    clin1=read.table("docs/Book1 UM 04062018_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+    clin2=read.table("docs/Book1 UM 08192018_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+    clin2=clin2[match(clin1$CCGL.Pt.Number,clin2$CCGL.Pt.Number),]
+    k=match(names(clin1),names(clin2)); k1=which(!is.na(k)); k2=k[k1]
+    kk=c()
+    for (k in 1:length(k1)) {
+        if (any(is.na(clin1[,k1[k]])!=is.na(clin2[,k2[k]])) | any(clin1[,k1[k]]!=clin2[,k2[k]],na.rm=T)) {
+            kk=c(kk,k)
+            if (names(clin1)[k1][k]=="CCGL.Pt.Number") next
+            cat("\n\n======== ",names(clin1)[k1[k]],"\n",sep="")
+            if (sum(!duplicated(clin1[,k1[k]]))<5) print(table(clin1=clin1[,k1[k]],clin2=clin2[,k2[k]],exclude=NULL))
+        }
+    }
+}
+
+if (F) {
     clin1=read.table("docs/20171105/Book1 UM.txt", sep="\t", h=T, quote="", comment.char="",as.is=T,fill=T)
     clin2=read.table("docs/Book1 UM 12-05-2017.txt", sep="\t", h=T, quote="", comment.char="",as.is=T,fill=T)
     clin2=clin2[match(clin1$Patient.Number,clin2$Patient.Number),]
@@ -25,6 +41,7 @@ if (F) {
         }
     }
 }
+
 
 if (F) {
     clin=read.table("docs/Book1 UM 12-05-2017.txt", sep="\t", h=T, quote="", comment.char="",as.is=T,fill=T)
@@ -63,7 +80,10 @@ if (F) {
 }
 ##############################################
 #clin=read.table("docs/Book1 UM 122272017_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
-clin=read.table("docs/Book1 UM 04062018_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+#clin=read.table("docs/Book1 UM 04062018_deidentified.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+clin=read.table("docs/Book1 UM 08192018_deidentified_RRedit.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
+j=which(clin$CCGL.Pt.Number=="")
+if (length(j)!=0) clin=clin[1:(j[1]-1),]
 clin$Chrom6pgain[which(clin$CCGL.Pt.Number=="UMPA-9")]=1
 
 clin1=read.table("docs/Book1 UM 01142018_AA.csv", sep=",", h=T, quote="", comment.char="",as.is=T,fill=T)
