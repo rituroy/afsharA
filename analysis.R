@@ -1,6 +1,6 @@
 dirSrc="/Users/royr/UCSF/"
 dirSrc2=dirSrc
-setwd(paste(dirSrc2,"AfsharA",sep=""))
+setwd(paste(dirSrc2,"AfsharA/ucsf500_um",sep=""))
 
 ##############################################
 outFormat="pdf"

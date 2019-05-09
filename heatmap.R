@@ -1,6 +1,6 @@
 dirSrc="/Users/royr/UCSF/"
 dirSrc2=dirSrc
-setwd(paste(dirSrc2,"AfsharA",sep=""))
+setwd(paste(dirSrc2,"AfsharA/ucsf500_um",sep=""))
 
 ##############################################
 
@@ -10,8 +10,9 @@ load("tmp.RData")
 library(marray)
 #source(paste(dirSrc,"functions/heatmap.5.6.R",sep=""))
 #source(paste(dirSrc,"functions/heatmapAcgh.7.3.R",sep=""))
-source(paste(dirSrc,"functions/heatmap.5.7.R",sep=""))
+#source(paste(dirSrc,"functions/heatmap.5.7.R",sep=""))
 source(paste(dirSrc,"functions/heatmapAcgh.7.4.R",sep=""))
+source(paste(dirSrc,"functions/heatmap.5.8.R",sep=""))
 
 lineFlag=T
 
@@ -29,6 +30,7 @@ if (fName1=="_um_gep") {
 
     colList=c("blue","forestgreen","yellow","red")
     colList2=c("blue","red")
+    colListGEP=c("blue","forestgreen","red","yellow")
 }
 colHM=c("red","blue","grey")
 colHM=list(c("grey"),NULL,NULL)
@@ -43,6 +45,7 @@ linkMethod="ward.D2"
 outFormat=""
 outFormat="pdf"
 outFormat="png"
+outFormat="tiff"
 
 altTypeUniq1=1:2
 altTypeUniq2=cbind(altTypeUniq1,as.character(1:length(altTypeUniq1)))
@@ -310,7 +313,9 @@ for (compFlag in compList) {
                         x[x==""]=NA; x=as.integer(as.factor(x))
                         grpUniq=sort(unique(x))
                         x=x[match(annCol$id,annColAll$id)]
-                        if (length(grpUniq)<=length(colList2)) {
+                        if (varList[varId]%in%c("GEPdesc")) {
+                            colCol[varId,]=colListGEP[x]
+                        } else if (length(grpUniq)<=length(colList2)) {
                             colCol[varId,]=colList2[x]
                         } else if (length(grpUniq)<=length(colList)) {
                             colCol[varId,]=colList[x]
@@ -389,6 +394,7 @@ for (compFlag in compList) {
                 cexThis=c(2,2,0.5)
                 cexThis=c(2,2,4)
                 cexThis=c(2,2,4,1.5,1.5)
+                lheiColSide=0.1
                 addTextThis=NULL
                 if (lineFlag) {
                     lim=150
@@ -413,14 +419,19 @@ for (compFlag in compList) {
                     margins=c(6,6)
                     margins=c(1,4)
                     margins=c(70,4)
-                    png(paste(subDir,"heatmap",fNameOut,".png",sep=""),width=480*3,height=480*2)
+                    png(paste(subDir,"heatmap",fNameOut,".png",sep=""),width=3*480,height=2*480)
+                } else if (outFormat=="tiff") {
+                    lheiColSide=0.15
+                    margins=c(60,1)
+                    tiff(paste(subDir,"heatmap",fNameOut,".tiff",sep=""),width=3*4*480, height=3*2*480,compression="none",res=200)
                 } else {
                     margins=c(12,5)
                     pdf(paste(subDir,"heatmap",fNameOut,".pdf",sep=""))
                 }
                 totalC=ncol(arrayData)
                 #hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=nClust[1],ncc=nClust[2],scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3])
-                hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=NA,ncc=NA,scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],cexRowSide=cexThis[4],cexColSide=cexThis[5],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3],lheiColSide=0.1,densColor=10)
+                #hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=NA,ncc=NA,scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],cexRowSide=cexThis[4],cexColSide=cexThis[5],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3],lheiColSide=0.1,densColor=10)
+                hcc=heatmap3(x=arrayData2,Rowv=clustR,Colv=clustC,distfun=distMethod,hclustfun=hclust,symm=F,ColSideColors=colCol,RowSideColors=colRow,labCol=nameCol,labRow=nameRow,ncr=NA,ncc=NA,scale="none",na.rm=F,margins=margins,main=main,xlab=NULL,ylab=NULL,zlm=limit1,cexCol=cexThis[2],cexRow=cexThis[1],cexRowSide=cexThis[4],cexColSide=cexThis[5],high=colHM[[1]],low=colHM[[2]],mid=colHM[[3]],lineRow=lineList$row,lineCol=lineList$col,lineColor=lineList$color,addText=addTextThis,cexText=cexThis[3],lheiColSide=lheiColSide,densColor=10,sideLabRow=2)
                 dev.off()
                 
                 if (is.na(nClust[1])) {
@@ -475,6 +486,8 @@ if (!is.null(varFList)) {
         }
         if (outFormat=="png") {
             png(paste(subDir,"heatmapGeneColorBarLegend_",nm,".png",sep=""))
+        } else if (outFormat=="tiff") {
+            tiff(paste(subDir,"heatmapGeneColorBarLegend_",nm,".tiff",sep=""),width=3*480, height=3*480,compression="none",res=200)
         } else {
             pdf(paste(subDir,"heatmapGeneColorBarLegend_",nm,".pdf",sep=""))
         }
@@ -501,6 +514,8 @@ if (!is.null(colCol)) {
         if (varListAll[varId]%in%c("Largestbasaldiam","Thickness")) {
             if (outFormat=="png") {
                 png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=0.3*480)
+            } else if (outFormat=="tiff") {
+                tiff(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".tiff",sep=""),width=3*480,height=3*0.3*480,compression="none",res=200)
             } else if (outFormat=="pdf") {
                 pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".pdf",sep=""))
             }
@@ -516,6 +531,8 @@ if (!is.null(colCol)) {
             dev.off()
             if (outFormat=="png") {
                 png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],"_title.png",sep=""))
+            } else if (outFormat=="tiff") {
+                tiff(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],"_title.tiff",sep=""),width=3*480, height=3*480,compression="none",res=200)
             } else if (outFormat=="pdf") {
                 pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],"_title.pdf",sep=""))
             }
@@ -531,7 +548,9 @@ if (!is.null(colCol)) {
             grpUniq=names(grpUniq)
             p=which(catInfo$variable==varList[varId])
             if (length(p)!=0) grpUniq=catInfo$catNameLong[p][match(grpUniq,catInfo$catList[p])]
-            if (length(grpUniq)<=length(colList2)) {
+            if (varList[varId]=="GEPdesc") {
+                colListThis=colListGEP
+            } else if (length(grpUniq)<=length(colList2)) {
                 colListThis=colList2
             } else if (length(grpUniq)<=length(colList)) {
                 colListThis=colList
@@ -541,6 +560,8 @@ if (!is.null(colCol)) {
             if (length(grpUniq)==2 & all(grpUniq%in%c("absent","present"))) {
                 if (outFormat=="png") {
                     png(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.png",sep=""),width=480,height=480)
+                } else if (outFormat=="tiff") {
+                    tiff(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.tiff",sep=""),width=3*480,height=3*480,compression="none",res=200)
                 } else if (outFormat=="pdf") {
                     pdf(paste(subDir,"heatmapSampleColorBarLegend_absentPresent.pdf",sep=""))
                 }
@@ -550,6 +571,8 @@ if (!is.null(colCol)) {
             } else {
                 if (outFormat=="png") {
                     png(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".png",sep=""),width=480,height=480)
+                } else if (outFormat=="tiff") {
+                    tiff(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".tiff",sep=""),width=3*480,height=3*480,compression="none",res=200)
                 } else if (outFormat=="pdf") {
                     pdf(paste(subDir,"heatmapSampleColorBarLegend_",varListAll[varId],".pdf",sep=""))
                 }
@@ -561,6 +584,8 @@ if (!is.null(colCol)) {
                 if (varList[varId]=="GEPdesc") {
                     if (outFormat=="png") {
                         png(paste(subDir,"heatmapSampleColorBarLegend_",varList[varId],"_NA.png",sep=""),width=480,height=480)
+                    } else if (outFormat=="tiff") {
+                        tiff(paste(subDir,"heatmapSampleColorBarLegend_",varList[varId],"_NA.tiff",sep=""),width=3*480, height=3*480,,compression="none",res=200)
                     } else if (outFormat=="pdf") {
                         pdf(paste(subDir,"heatmapSampleColorBarLegend_",varList[varId],"_NA.pdf",sep=""))
                     }
@@ -569,6 +594,8 @@ if (!is.null(colCol)) {
                 } else {
                     if (outFormat=="png") {
                         png(paste(subDir,"heatmapSampleColorBarLegend_NA.png",sep=""),width=480,height=480)
+                    } else if (outFormat=="tiff") {
+                        tiff(paste(subDir,"heatmapSampleColorBarLegend_NA.tiff",sep=""),width=3*480, height=3*480,compression="none",res=200)
                     } else if (outFormat=="pdf") {
                         pdf(paste(subDir,"heatmapSampleColorBarLegend_NA.pdf",sep=""))
                     }
@@ -586,6 +613,8 @@ fNameOut2=""
 if (length(colHMAll[[1]])==1) {
     if (outFormat=="png") {
         png(paste(subDir,"heatmapColorRange",fNameOut2,".png",sep=""),width=480,height=140)
+    } else if (outFormat=="tiff") {
+        tiff(paste(subDir,"heatmapColorRange",fNameOut2,".tiff",sep=""),width=3*480,height=3*140,compression="none",res=200)
     } else if (outFormat=="pdf") {
         pdf(paste(subDir,"heatmapColorRange",fNameOut2,".pdf",sep=""))
     }
@@ -599,19 +628,39 @@ if (length(colHMAll[[1]])==1) {
     dev.off()
 } else {
     width = 480; height = 480
+    
     if (outFormat=="png") {
-        png(paste(subDir,"heatmapColorLegend",fNameOut2,".png",sep=""),width=width,height=height)
+        png(paste(subDir,"heatmapColorLegend_chrom3",fNameOut2,".png",sep=""),width=width,height=height)
+    } else if (outFormat=="tiff") {
+        tiff(paste(subDir,"heatmapColorLegend_chrom3",fNameOut2,".tiff",sep=""),width=3*width,height=3*height,compression="none",res=200)
     } else if (outFormat=="pdf") {
-        pdf(paste(subDir,"heatmapColorLegend",fNameOut2,".pdf",sep=""))
+        pdf(paste(subDir,"heatmapColorLegend_chrom3",fNameOut2,".pdf",sep=""))
     }
     grpUniq=sort(altTypeUniq2[,1])
-    grpUniq=c("mutation / monosomy 3","partial chromosome 3 loss")
+    grpUniq=c("monosomy 3","partial chromosome 3 loss","no chromosome 3 loss")
     cexThis=NULL
     cexThis=1.5
     if (outFormat=="pdf") cexThis=1
     legTtl="Clinical,histologic and genetic features"
-    legTtl="Mutation status"
-    sampleColorLegend(tls=grpUniq,col=colHMAll[[1]],legendTitle=legTtl,cex=cexThis)
+    legTtl="Chromosome 3 status"
+    sampleColorLegend(tls=grpUniq,col=c(colHMAll[[1]],"white"),legendTitle=legTtl,cex=cexThis)
+    if (outFormat!="") dev.off()
+    
+    width = 2*480; height = 480
+    if (outFormat=="png") {
+        png(paste(subDir,"heatmapColorLegend",fNameOut2,".png",sep=""),width=width,height=height)
+    } else if (outFormat=="tiff") {
+        tiff(paste(subDir,"heatmapColorLegend",fNameOut2,".tiff",sep=""),width=3*width,height=3*height,compression="none",res=200)
+    } else if (outFormat=="pdf") {
+        pdf(paste(subDir,"heatmapColorLegend",fNameOut2,".pdf",sep=""))
+    }
+    grpUniq=sort(altTypeUniq2[,1])
+    grpUniq=c("present","mutation/chromosome change absent")
+    cexThis=NULL
+    cexThis=1.5
+    if (outFormat=="pdf") cexThis=1
+    legTtl="Mutation or chromosome 8q gain, 6p gain, 1p loss"
+    sampleColorLegend(tls=grpUniq,col=c(colHMAll[[1]][1],"white"),legendTitle=legTtl,cex=cexThis)
     if (outFormat!="") dev.off()
     
 }
@@ -620,6 +669,8 @@ if (outFormat=="") dev.off()
 if (F) {
     if (outFormat=="png") {
         png(paste(subDir,"heatmapGeneLegend",fNameOut2,".png",sep=""),width=width,height=height)
+    } else if (outFormat=="tiff") {
+        tiff(paste(subDir,"heatmapGeneLegend",fNameOut2,".tiff",sep=""),width=3*width,height=3*height,compression="none",res=200)
     } else if (outFormat=="pdf") {
         pdf(paste(subDir,"heatmapGeneLegend",fNameOut2,".pdf",sep=""))
     }
